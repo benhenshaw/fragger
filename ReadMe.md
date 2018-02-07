@@ -2,5 +2,5 @@
 Runs a fragment shader across the whole screen.
 
 ```
-fragger vertex_shader_file.glsl
+fragger fragment_shader_file.glsl
 ```
