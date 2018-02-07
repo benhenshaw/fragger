@@ -7,7 +7,7 @@ fragger [-r] [file.glsl]
 
 | Argument | Description |
 | ---      | ---         |
-| **\***   | The first argument without a '-' will be treated as the shader file to read. |
+| **\***   | The first argument without a '-' will be treated as the shader file to read. If none is provided fragger will attempt to open the file 'frag.glsl' in the current directory. |
 | **-d**   | Print debuf info. |
 | **-r**   | Retina display mode (2x scale). |
 
