@@ -121,30 +121,33 @@ int main(int argument_count, char ** arguments) {
         printf("\n");
     }
 
+    // Read in the fragment shader file.
+    // Attempt to open the file.
+    FILE * frag_file = fopen(frag_file_name, "r");
+    if (!frag_file) {
+        panic_exit("Could not open file '%s'.", frag_file_name);
+    }
+    // Get the length of the file.
+    fseek(frag_file, 0, SEEK_END);
+    int file_length = ftell(frag_file);
+    rewind(frag_file);
+    // Allocate enough space for the whole file.
+    char * frag = calloc(file_length + 1, 1);
+    if (!frag) panic_exit("Could not allocate space for the fragment source.");
+    // Attempt to read the whole file.
+    if (!fread(frag, 1, file_length, frag_file)) {
+        panic_exit("Could not read from file '%s'.", frag_file_name);
+    }
+
+    // This will hold the status of the shader compilation.
+    int status = 0;
+
     // Use the simplest possible vertex shader.
     char vert[] = "#version 330\n"
                   "in vec4 vert;\n"
                   "void main() {\n"
                   "    gl_Position = vert;\n"
                   "}\n";
-
-    // Read in the fragment shader file.
-    // TODO: Read files of any length.
-    char * frag = calloc(4096, 1);
-    if (!frag) panic_exit("Could not allocate space for the fragment source.");
-    // Attempt to open the file.
-    FILE * frag_file = fopen(frag_file_name, "r");
-    if (!frag_file) {
-        panic_exit("Could not open file '%s'.", frag_file_name);
-    }
-    // Attempt to read the file.
-    if (!fread(frag, 1, 4096, frag_file)) {
-        panic_exit("Could not read from file '%s'.", frag_file_name);
-    }
-
-    // This will hold the status of the compilation.
-    int status = 0;
-
     // Attempt to compile the vertex shader.
     GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, (const char * []) { vert }, NULL);
