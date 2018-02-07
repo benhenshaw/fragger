@@ -238,13 +238,19 @@ int main(int argument_count, char ** arguments) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    // Set the initial value of the resolution uniform to the current width and height.
-    glUniform2f(glGetUniformLocation(program, UNIFORM_RESOLUTION), width, height);
-
     set_seed(SDL_GetPerformanceCounter(), SDL_GetTicks());
 
     int key_is_down = 0;
     int key_time_stamp = 0;
+
+    int resolution_location = glGetUniformLocation(program, UNIFORM_RESOLUTION);
+    int mouse_location      = glGetUniformLocation(program, UNIFORM_MOUSE);
+    int time_location       = glGetUniformLocation(program, UNIFORM_TIME);
+    int random_location     = glGetUniformLocation(program, UNIFORM_RANDOM);
+    int button_location     = glGetUniformLocation(program, UNIFORM_BUTTON);
+
+    // Set the initial value of the resolution uniform to the current width and height.
+    glUniform2f(resolution_location, width, height);
 
     // Begin the frame loop.
     while (1) {
@@ -255,8 +261,7 @@ int main(int argument_count, char ** arguments) {
                 exit(0);
             } else if (event.type == SDL_MOUSEMOTION) {
                 // Update the mouse uniform when the mouse has moved.
-                glUniform2f(glGetUniformLocation(program, UNIFORM_MOUSE),
-                    event.motion.x, height - event.motion.y);
+                glUniform2f(mouse_location, event.motion.x, height - event.motion.y);
             } else if (event.type == SDL_KEYDOWN) {
                 if (!event.key.repeat) {
                     key_is_down = 1;
@@ -269,8 +274,7 @@ int main(int argument_count, char ** arguments) {
                     // Update the resolution uniform when the window is resized.
                     width  = event.window.data1 * scale;
                     height = event.window.data2 * scale;
-                    glUniform2f(glGetUniformLocation(program, UNIFORM_RESOLUTION),
-                        width, height);
+                    glUniform2f(resolution_location, width, height);
                     // Update the view port with the new resolution.
                     glViewport(0, 0, width, height);
                 }
@@ -278,19 +282,18 @@ int main(int argument_count, char ** arguments) {
         }
 
         // Generate a new pseudo-random number for the random uniform.
-        glUniform1f(glGetUniformLocation(program, UNIFORM_RANDOM), random_float());
+        glUniform1f(random_location, random_float());
 
         // Update the time uniform.
-        glUniform1f(glGetUniformLocation(program, UNIFORM_TIME), SDL_GetTicks() / 1000.0f);
+        glUniform1f(time_location, SDL_GetTicks() / 1000.0f);
 
         // Update the button uniform.
         if (key_is_down) {
             float time = SDL_GetTicks() - key_time_stamp;
             time /= 1000.0f;
-            glUniform1f(glGetUniformLocation(program, UNIFORM_BUTTON),
-                time > 1.0f ? 1.0f : time);
+            glUniform1f(button_location, time > 1.0f ? 1.0f : time);
         } else {
-            glUniform1f(glGetUniformLocation(program, UNIFORM_BUTTON), 0.0f);
+            glUniform1f(button_location, 0.0f);
         }
 
         // Clear the screen.
