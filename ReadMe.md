@@ -15,7 +15,7 @@ Uses [SDL2](https://libsdl.org) and [glad](http://glad.dav1d.de/). An [example s
 
 #### Uniforms
 
-| Name           | type  | Description |
+| Name           | Type  | Description |
 | ---            | ---   | --- |
 | **resolution** | vec2  | The width and height of the window. |
 | **mouse**      | vec2  | The x and y position of the mouse. |
