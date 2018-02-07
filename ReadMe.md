@@ -17,8 +17,8 @@ An [example shader](https://github.com/benhenshaw/fragger/blob/master/creation.g
 
 #### Uniforms
 
-| Name       | type  | Description |
-| ---        | ---   | --- |
-| resolution | vec2  | The width and height of the window. |
-| mouse      | vec2  | The x and y position of the mouse. |
-| time       | float | The number of seconds since the program launched. |
+| Name           | type  | Description |
+| ---            | ---   | --- |
+| **resolution** | vec2  | The width and height of the window. |
+| **mouse**      | vec2  | The x and y position of the mouse. |
+| **time**       | float | The number of seconds since the program launched. |
