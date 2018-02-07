@@ -2,7 +2,7 @@
 Runs a fragment shader across the whole screen.
 
 ```
-fragger [-r] [file.glsl]
+fragger [args] [file.glsl]
 ```
 
 | Argument | Description |
