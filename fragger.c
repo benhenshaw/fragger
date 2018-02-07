@@ -131,7 +131,6 @@ int main(int argument_count, char ** arguments) {
     // Get the window dimensions.
     int width, height;
     SDL_GL_GetDrawableSize(window, &width, &height);
-    printf("Initial: %d %d\n", width, height);
 
     // Calculate scale factor.
     // The number of drawable pixels differs from the 'window' pixels
@@ -260,10 +259,9 @@ int main(int argument_count, char ** arguments) {
                 exit(0);
             } else if (event.type == SDL_MOUSEMOTION) {
                 // Update the mouse uniform when the mouse has moved.
-                int x = event.motion.x * 2.0;
-                int y = height - event.motion.y * 2.0;
+                int x = event.motion.x * scale;
+                int y = height - event.motion.y * scale;
                 glUniform2f(mouse_location, x, y);
-                printf("%d, %d\n", x, y);
             } else if (event.type == SDL_KEYDOWN) {
                 if (!event.key.repeat) {
                     key_is_down = 1;
