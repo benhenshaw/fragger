@@ -6,7 +6,6 @@
 //
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_stdinc.h>
 #include "glad.c"
 
 typedef Uint64 u64;
