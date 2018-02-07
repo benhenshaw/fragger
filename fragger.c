@@ -9,16 +9,53 @@
 #include <SDL2/SDL_stdinc.h>
 #include "glad.c"
 
+typedef Uint64 u64;
+
+// You can change the names of the uniforms here if you like.
+#define UNIFORM_RESOLUTION "resolution"
+#define UNIFORM_MOUSE "mouse"
+#define UNIFORM_TIME "time"
+#define UNIFORM_RANDOM "random"
+#define UNIFORM_BUTTON "button"
+
 // Exit the program, displaying an error message via pop-up box and print out.
 void panic_exit(char * message, ...) {
     va_list args;
     va_start(args, message);
-    char buffer[256];
-    vsnprintf(buffer, 256, message, args);
+    char buffer[512];
+    vsnprintf(buffer, 512, message, args);
     va_end(args);
     puts(buffer);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error!", buffer, NULL);
     exit(1);
+}
+
+// Pseudo-random number generator.
+// (Xoroshiro128+)
+u64 random_seed[2] = { 0, 0 };
+
+u64 random_u64() {
+    u64 s0 = random_seed[0];
+    u64 s1 = random_seed[1];
+    u64 result = s0 + s1;
+    s1 ^= s0;
+    #define LS(x, k) ((x << k) | (x >> (64 - k)))
+    random_seed[0] = LS(s0, 55) ^ s1 ^ (s1 << 14);
+    random_seed[1] = LS(s1, 36);
+    #undef LS
+    return result;
+}
+
+// Set the seed for the pseudo-random number generator.
+void set_seed(u64 a, u64 b) {
+    random_seed[0] = a;
+    random_seed[1] = b;
+    for (int i = 0; i < 64; ++i) random_u64();
+}
+
+// Get a random float between 0.0 and 1.0.
+float random_float() {
+    return (float)random_u64() / (float)UINT64_MAX;
 }
 
 int main(int argument_count, char ** arguments) {
@@ -202,7 +239,12 @@ int main(int argument_count, char ** arguments) {
     glEnableVertexAttribArray(0);
 
     // Set the initial value of the resolution uniform to the current width and height.
-    glUniform2f(glGetUniformLocation(program, "resolution"), width, height);
+    glUniform2f(glGetUniformLocation(program, UNIFORM_RESOLUTION), width, height);
+
+    set_seed(SDL_GetPerformanceCounter(), SDL_GetTicks());
+
+    int key_is_down = 0;
+    int key_time_stamp = 0;
 
     // Begin the frame loop.
     while (1) {
@@ -213,22 +255,43 @@ int main(int argument_count, char ** arguments) {
                 exit(0);
             } else if (event.type == SDL_MOUSEMOTION) {
                 // Update the mouse uniform when the mouse has moved.
-                glUniform2f(glGetUniformLocation(program, "mouse"),
+                glUniform2f(glGetUniformLocation(program, UNIFORM_MOUSE),
                     event.motion.x, height - event.motion.y);
+            } else if (event.type == SDL_KEYDOWN) {
+                if (!event.key.repeat) {
+                    key_is_down = 1;
+                    key_time_stamp = event.key.timestamp;
+                }
+            } else if (event.type == SDL_KEYUP) {
+                key_is_down = 0;
             } else if (event.type == SDL_WINDOWEVENT) {
                 if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                     // Update the resolution uniform when the window is resized.
                     width  = event.window.data1 * scale;
                     height = event.window.data2 * scale;
-                    glUniform2f(glGetUniformLocation(program, "resolution"), width, height);
+                    glUniform2f(glGetUniformLocation(program, UNIFORM_RESOLUTION),
+                        width, height);
                     // Update the view port with the new resolution.
                     glViewport(0, 0, width, height);
                 }
             }
         }
 
+        // Generate a new pseudo-random number for the random uniform.
+        glUniform1f(glGetUniformLocation(program, UNIFORM_RANDOM), random_float());
+
         // Update the time uniform.
-        glUniform1f(glGetUniformLocation(program, "time"), SDL_GetTicks() / 1000.0f);
+        glUniform1f(glGetUniformLocation(program, UNIFORM_TIME), SDL_GetTicks() / 1000.0f);
+
+        // Update the button uniform.
+        if (key_is_down) {
+            float time = SDL_GetTicks() - key_time_stamp;
+            time /= 1000.0f;
+            glUniform1f(glGetUniformLocation(program, UNIFORM_BUTTON),
+                time > 1.0f ? 1.0f : time);
+        } else {
+            glUniform1f(glGetUniformLocation(program, UNIFORM_BUTTON), 0.0f);
+        }
 
         // Clear the screen.
         glClear(GL_COLOR_BUFFER_BIT);
