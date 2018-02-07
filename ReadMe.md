@@ -2,8 +2,14 @@
 Runs a fragment shader across the whole screen.
 
 ```
-fragger fragment_shader_file.glsl
+fragger [-r] [file.glsl]
 ```
+
+| Argument | Description |
+| ---      | ---         |
+| **\***   | The first argument without a '-' will be treated as the shader file to read. |
+| **-d**   | Print debuf info. |
+| **-r**   | Retina display mode (2x scale). |
 
 Uses [SDL2](https://libsdl.org) and [glad](http://glad.dav1d.de/).
 
