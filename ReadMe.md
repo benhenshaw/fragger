@@ -5,9 +5,7 @@ Runs a fragment shader across the whole screen.
 fragger [args] [file.glsl]
 ```
 
-Uses [SDL2](https://libsdl.org) and [glad](http://glad.dav1d.de/).
-
-An [example shader](https://github.com/benhenshaw/fragger/blob/master/creation.glsl) is provided.
+Uses [SDL2](https://libsdl.org) and [glad](http://glad.dav1d.de/). An [example shader](https://github.com/benhenshaw/fragger/blob/master/creation.glsl) is provided.
 
 | Argument | Description |
 | ---      | --- |
