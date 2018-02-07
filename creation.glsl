@@ -16,8 +16,7 @@ void main() {
     for (int i = 0; i < 3; i++) {
         vec2 uv, p = gl_FragCoord.xy / resolution;
         uv = p;
-        p.x -= mouse.x / resolution.x * 2.0;
-        p.y -= mouse.y / resolution.y * 2.0 - 1.0;
+        p -= mouse / resolution;
         p.x *= resolution.x / resolution.y;
         z += 0.07;
         l = length(p);

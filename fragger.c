@@ -130,15 +130,15 @@ int main(int argument_count, char ** arguments) {
 
     // Get the window dimensions.
     int width, height;
-    SDL_GetWindowSize(window, &width, &height);
+    SDL_GL_GetDrawableSize(window, &width, &height);
+    printf("Initial: %d %d\n", width, height);
 
-    // Assume 2x scale when in retina mode.
-    // (This is not very robust, but is better than nothing.)
-    int scale = retina_mode ? 2 : 1;
-
-    // Our window dimensions do not take into account retina scale, so scale them.
-    width  *= scale;
-    height *= scale;
+    // Calculate scale factor.
+    // The number of drawable pixels differs from the 'window' pixels
+    // on high DPI displays. Scale is based on the ratio of their widths.
+    int window_width;
+    SDL_GetWindowSize(window, &window_width, NULL);
+    float scale = (float)width / (float)window_width;
 
     glViewport(0, 0, width, height);
 
@@ -260,7 +260,10 @@ int main(int argument_count, char ** arguments) {
                 exit(0);
             } else if (event.type == SDL_MOUSEMOTION) {
                 // Update the mouse uniform when the mouse has moved.
-                glUniform2f(mouse_location, event.motion.x, height - event.motion.y);
+                int x = event.motion.x * 2.0;
+                int y = height - event.motion.y * 2.0;
+                glUniform2f(mouse_location, x, y);
+                printf("%d, %d\n", x, y);
             } else if (event.type == SDL_KEYDOWN) {
                 if (!event.key.repeat) {
                     key_is_down = 1;
@@ -271,8 +274,7 @@ int main(int argument_count, char ** arguments) {
             } else if (event.type == SDL_WINDOWEVENT) {
                 if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
                     // Update the resolution uniform when the window is resized.
-                    width  = event.window.data1 * scale;
-                    height = event.window.data2 * scale;
+                    SDL_GL_GetDrawableSize(window, &width, &height);
                     glUniform2f(resolution_location, width, height);
                     // Update the view port with the new resolution.
                     glViewport(0, 0, width, height);
