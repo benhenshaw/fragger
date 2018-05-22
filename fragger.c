@@ -302,6 +302,9 @@ int main(int argument_count, char ** arguments) {
         glBindVertexArray(vertex_array_object[0]);
         glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 
+        // Sleep to avoid very high CPU usage.
+        SDL_Delay(5);
+
         // Display the results.
         SDL_GL_SwapWindow(window);
     }
